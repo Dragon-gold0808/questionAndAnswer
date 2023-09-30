@@ -4,17 +4,15 @@ const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth");
 const postRoutes = require("./routes/post");
 const pageRoutes = require("./routes/page");
+const emailRoutes = require("./routes/email");
 const multer = require("multer");
 const path = require("path");
 const Post = require("./models/postModel");
-const User = require('./models/userModel');
-const Page = require('./models/pageModel');
+const User = require("./models/userModel");
+const Page = require("./models/pageModel");
 const fs = require("fs");
-const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-
-
-
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 
 const fileRenamer = (filename) => {
   const queHoraEs = Date.now();
@@ -59,10 +57,10 @@ mongoose
 //       console.log(req.body);
 //       const errors = "";
 //       const {
-        
+
 //         pagedescription,
 //       } = req.body;
-      
+
 //       if (validator.isEmpty(pagedescription)) {
 //         return res.json({
 //           errors: "description is required.",
@@ -79,23 +77,23 @@ mongoose
 //   };
 
 // addPage();
-const data = JSON.parse(fs.readFileSync('./page.json','utf-8'))
-console.log(data)
+const data = JSON.parse(fs.readFileSync("./page.json", "utf-8"));
 
-const importData = async () => {
-  try {
-    await Page.create(data)
-    console.log('data successfullly imported')
-    process.exit()
-  } catch (error) {
-    console.log('error', error)
-  }
-}
-importData();
+// const importData = async () => {
+//   try {
+//     await Page.create(data);
+//     console.log("data successfullly imported");
+//     process.exit();
+//   } catch (error) {
+//     console.log("error", error);
+//   }
+// };
+// importData();
 
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/page", pageRoutes);
+app.use("/api/email", emailRoutes);
 app.post("/api/file/:id", upload1.single("file"), async (req, res) => {
   try {
     const { id } = req.params;
@@ -110,46 +108,46 @@ app.post("/api/file/:id", upload1.single("file"), async (req, res) => {
 });
 
 app.use("/", express.static(path.join(__dirname, "./postFile")));
-app.get('/help', async(req, res) => {
+app.get("/help", async (req, res) => {
   const posts = await Post.find();
-  for await (let post of posts){
-    post.category = 'other';
+  for await (let post of posts) {
+    post.category = "other";
     post.save();
   }
-  return res.json('cool')
-})
+  return res.json("cool");
+});
 
-app.get('/check', async(req, res) => {
-  try{
-    const token = req.headers['x-auth-token'];
-    if(!token) throw new Error('Unauthorized');
-    const payload = jwt.verify(token, 'HJS');
+app.get("/check", async (req, res) => {
+  try {
+    const token = req.headers["x-auth-token"];
+    if (!token) throw new Error("Unauthorized");
+    const payload = jwt.verify(token, "HJS");
     const user = await User.findById(payload.id);
     user.downloadable = true;
     await user.save();
-    return res.json('success')
-  }catch(e){
-    return res.status(400).send(e.message)
+    return res.json("success");
+  } catch (e) {
+    return res.status(400).send(e.message);
   }
-})
+});
 
 app.get("/file/:id", async (req, res) => {
   try {
-    const token = req.headers['x-auth-token'];
-    if(!token) throw new Error('Unauthorized');
-    const payload = jwt.verify(token, 'HJS');
+    const token = req.headers["x-auth-token"];
+    if (!token) throw new Error("Unauthorized");
+    const payload = jwt.verify(token, "HJS");
     const user = await User.findById(payload.id);
-    if(!user.downloadable) throw new Error('You are not allowed to download');
+    if (!user.downloadable) throw new Error("You are not allowed to download");
     user.downloadable = false;
     await user.save();
     const id = req.params.id;
     let filePath = path.join(__dirname, `./uploads/${id}`);
     return res.sendFile(filePath);
   } catch (e) {
-    return res.status(400).send(e.message)
+    return res.status(400).send(e.message);
   }
 });
 
-app.listen(process.env.PORT, () => 
+app.listen(process.env.PORT, () =>
   console.log(`Server started on ${process.env.PORT}`)
 );

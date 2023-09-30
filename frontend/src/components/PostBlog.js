@@ -33,6 +33,12 @@ const PostBlog = () => {
     console.log(values);
   };
 
+  const handleTagsChange = (event) => {
+    const tags = event.target.value.replace(/\s/g, ",");
+    setValues({ ...values, insertTagsHere: tags });
+    console.log(values);
+  };
+
   const handleFile = (e) => setFile(e.target.files[0]);
 
   const onSubmit = async (event) => {
@@ -89,7 +95,7 @@ const PostBlog = () => {
     <Card
       style={{
         marginTop: "20px",
-        marginBottom: "20px"
+        marginBottom: "20px",
       }}
     >
       <ToastContainer />
@@ -102,7 +108,7 @@ const PostBlog = () => {
       >
         Assignment Help
       </h3>
-      <Row style={{paddingBottom: "30px", marginBottom: "80px"}}>
+      <Row style={{ paddingBottom: "30px", marginBottom: "80px" }}>
         <Col span={12} style={{ paddingRight: "10px" }}>
           <div style={{ marginBottom: "9px" }}>
             <input
@@ -125,7 +131,7 @@ const PostBlog = () => {
             value={content}
             onChange={handleQuillChange}
             style={{
-              height: '400px'
+              height: "400px",
             }}
           />
         </Col>
@@ -228,10 +234,10 @@ const PostBlog = () => {
               type="text"
               placeholder="Insert Tags here"
               name="insertTagsHere"
-              onChange={(e) => handleChange(e)}
+              value={values.insertTagsHere}
+              onChange={(e) => handleTagsChange(e)}
               style={{
                 width: "100%",
-
                 fontSize: "15px",
                 color: "black !important",
                 border: "1px solid #d9d9d9",
@@ -240,16 +246,11 @@ const PostBlog = () => {
               }}
             />
           </div>
-          <Button
-            type="primary"
-            size="large"
-            onClick={onSubmit}
-          >
+          <Button type="primary" size="large" onClick={onSubmit}>
             Submit
           </Button>
           {/* </Col> */}
         </Col>
-
       </Row>
     </Card>
   );
